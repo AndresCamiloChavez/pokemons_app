@@ -1,84 +1,145 @@
-class MatchFootball {
-    MatchFootball({
-        required this.area,
-        required this.competition,
-        required this.season,
-        required this.id,
-        required this.utcDate,
-        required this.status,
-        required this.matchday,
-        required this.stage,
-        this.group,
-        required this.lastUpdated,
-        required this.homeTeam,
-        required this.awayTeam,
-        required this.score,
-        required this.referees,
+// To parse this JSON data, do
+//
+//     final resultApi = resultApiFromJson(jsonString);
+
+import 'dart:convert';
+
+ResultApi resultApiFromJson(String str) => ResultApi.fromJson(json.decode(str));
+
+String resultApiToJson(ResultApi data) => json.encode(data.toJson());
+
+class ResultApi {
+    ResultApi({
+        this.filters,
+        this.resultSet,
+        this.matches,
     });
 
-    Area area;
-    Competition competition;
-    Season season;
-    int id;
-    DateTime utcDate;
-    String status;
-    int matchday;
-    String stage;
-    String? group;
-    DateTime lastUpdated;
-    Team homeTeam;
-    Team awayTeam;
-    Score score;
-    List<Referee> referees;
+    Filters? filters;
+    ResultSet? resultSet;
+    List<MatchFootball>? matches;
 
-    factory MatchFootball.fromJson(Map<String, dynamic> json) => MatchFootball(
-        area: Area.fromJson(json["area"]),
-        competition: Competition.fromJson(json["competition"]),
-        season: Season.fromJson(json["season"]),
-        id: json["id"],
-        utcDate: DateTime.parse(json["utcDate"]),
-        status: json["status"],
-        matchday: json["matchday"],
-        stage: json["stage"],
-        group: json["group"],
-        lastUpdated: DateTime.parse(json["lastUpdated"]),
-        homeTeam: Team.fromJson(json["homeTeam"]),
-        awayTeam: Team.fromJson(json["awayTeam"]),
-        score: Score.fromJson(json["score"]),
-        referees: List<Referee>.from(json["referees"].map((x) => Referee.fromJson(x))),
+    factory ResultApi.fromJson(Map<String, dynamic> json) => ResultApi(
+        filters: json["filters"] == null ? null : Filters.fromJson(json["filters"]),
+        resultSet: json["resultSet"] == null ? null : ResultSet.fromJson(json["resultSet"]),
+        matches: json["matches"] == null ? [] : List<MatchFootball>.from(json["matches"]!.map((x) => MatchFootball.fromJson(x))),
     );
 
     Map<String, dynamic> toJson() => {
-        "area": area.toJson(),
-        "competition": competition.toJson(),
-        "season": season.toJson(),
+        "filters": filters?.toJson(),
+        "resultSet": resultSet?.toJson(),
+        "matches": matches == null ? [] : List<dynamic>.from(matches!.map((x) => x.toJson())),
+    };
+}
+
+class Filters {
+    Filters({
+        this.dateFrom,
+        this.dateTo,
+        this.permission,
+    });
+
+    DateTime? dateFrom;
+    DateTime? dateTo;
+    String? permission;
+
+    factory Filters.fromJson(Map<String, dynamic> json) => Filters(
+        dateFrom: json["dateFrom"] == null ? null : DateTime.parse(json["dateFrom"]),
+        dateTo: json["dateTo"] == null ? null : DateTime.parse(json["dateTo"]),
+        permission: json["permission"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "dateFrom": "${dateFrom!.year.toString().padLeft(4, '0')}-${dateFrom!.month.toString().padLeft(2, '0')}-${dateFrom!.day.toString().padLeft(2, '0')}",
+        "dateTo": "${dateTo!.year.toString().padLeft(4, '0')}-${dateTo!.month.toString().padLeft(2, '0')}-${dateTo!.day.toString().padLeft(2, '0')}",
+        "permission": permission,
+    };
+}
+
+class MatchFootball {
+    MatchFootball({
+        this.area,
+        this.competition,
+        this.season,
+        this.id,
+        this.utcDate,
+        this.status,
+        this.matchday,
+        this.stage,
+        this.group,
+        this.lastUpdated,
+        this.homeTeam,
+        this.awayTeam,
+        this.score,
+        this.odds,
+        this.referees,
+    });
+
+    Area? area;
+    Competition? competition;
+    Season? season;
+    int? id;
+    DateTime? utcDate;
+    String? status;
+    int? matchday;
+    String? stage;
+    String? group;
+    DateTime? lastUpdated;
+    Team? homeTeam;
+    Team? awayTeam;
+    Score? score;
+    Odds? odds;
+    List<Referee>? referees;
+
+    factory MatchFootball.fromJson(Map<String, dynamic> json) => MatchFootball(
+        area: json["area"] == null ? null : Area.fromJson(json["area"]),
+        competition: json["competition"] == null ? null : Competition.fromJson(json["competition"]),
+        season: json["season"] == null ? null : Season.fromJson(json["season"]),
+        id: json["id"],
+        utcDate: json["utcDate"] == null ? null : DateTime.parse(json["utcDate"]),
+        status: json["status"]!,
+        matchday: json["matchday"],
+        stage: json["stage"]!,
+        group: json["group"],
+        lastUpdated: json["lastUpdated"] == null ? null : DateTime.parse(json["lastUpdated"]),
+        homeTeam: json["homeTeam"] == null ? null : Team.fromJson(json["homeTeam"]),
+        awayTeam: json["awayTeam"] == null ? null : Team.fromJson(json["awayTeam"]),
+        score: json["score"] == null ? null : Score.fromJson(json["score"]),
+        odds: json["odds"] == null ? null : Odds.fromJson(json["odds"]),
+        referees: json["referees"] == null ? [] : List<Referee>.from(json["referees"]!.map((x) => Referee.fromJson(x))),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "area": area?.toJson(),
+        "competition": competition?.toJson(),
+        "season": season?.toJson(),
         "id": id,
-        "utcDate": utcDate.toIso8601String(),
+        "utcDate": utcDate?.toIso8601String(),
         "status": status,
         "matchday": matchday,
         "stage": stage,
         "group": group,
-        "lastUpdated": lastUpdated.toIso8601String(),
-        "homeTeam": homeTeam.toJson(),
-        "awayTeam": awayTeam.toJson(),
-        "score": score.toJson(),
-        "referees": List<dynamic>.from(referees.map((x) => x.toJson())),
+        "lastUpdated": lastUpdated?.toIso8601String(),
+        "homeTeam": homeTeam?.toJson(),
+        "awayTeam": awayTeam?.toJson(),
+        "score": score?.toJson(),
+        "odds": odds?.toJson(),
+        "referees": referees == null ? [] : List<dynamic>.from(referees!.map((x) => x.toJson())),
     };
 }
 
-
 class Area {
     Area({
-        required this.id,
-        required this.name,
-        required this.code,
-        required this.flag,
+        this.id,
+        this.name,
+        this.code,
+        this.flag,
     });
 
-    int id;
-    String name;
-    String code;
-    String flag;
+    int? id;
+    String? name;
+    String? code;
+    String? flag;
 
     factory Area.fromJson(Map<String, dynamic> json) => Area(
         id: json["id"],
@@ -97,18 +158,18 @@ class Area {
 
 class Team {
     Team({
-        required this.id,
-        required this.name,
-        required this.shortName,
+        this.id,
+        this.name,
+        this.shortName,
         this.tla,
-        required this.crest,
+        this.crest,
     });
 
-    int id;
-    String name;
-    String shortName;
+    int? id;
+    String? name;
+    String? shortName;
     String? tla;
-    String crest;
+    String? crest;
 
     factory Team.fromJson(Map<String, dynamic> json) => Team(
         id: json["id"],
@@ -129,24 +190,24 @@ class Team {
 
 class Competition {
     Competition({
-        required this.id,
-        required this.name,
-        required this.code,
-        required this.type,
-        required this.emblem,
+        this.id,
+        this.name,
+        this.code,
+        this.type,
+        this.emblem,
     });
 
-    int id;
-    String name;
-    String code;
-    String type;
-    String emblem;
+    int? id;
+    String? name;
+    String? code;
+    String? type;
+    String? emblem;
 
     factory Competition.fromJson(Map<String, dynamic> json) => Competition(
         id: json["id"],
         name: json["name"],
         code: json["code"],
-        type: json["type"],
+        type: json["type"]!,
         emblem: json["emblem"],
     );
 
@@ -160,67 +221,34 @@ class Competition {
 }
 
 
-class Score {
-    Score({
-        required this.winner,
-        required this.duration,
-        required this.fullTime,
-        required this.halfTime,
+class Odds {
+    Odds({
+        this.msg,
     });
 
-    String winner;
-    String duration;
-    TimeMatch fullTime;
-    TimeMatch halfTime;
+    String? msg;
 
-    factory Score.fromJson(Map<String, dynamic> json) => Score(
-        winner: json["winner"],
-        duration: json["duration"],
-        fullTime: TimeMatch.fromJson(json["fullTime"]),
-        halfTime: TimeMatch.fromJson(json["halfTime"]),
+    factory Odds.fromJson(Map<String, dynamic> json) => Odds(
+        msg: json["msg"]
     );
 
     Map<String, dynamic> toJson() => {
-        "winner": winner,
-        "duration": duration,
-        "fullTime": fullTime.toJson(),
-        "halfTime": halfTime.toJson(),
+        "msg": msg,
     };
 }
 
-class TimeMatch {
-    TimeMatch({
-        required this.home,
-        required this.away,
-    });
-
-    int home;
-    int away;
-
-    factory TimeMatch.fromJson(Map<String, dynamic> json) => TimeMatch(
-        home: json["home"],
-        away: json["away"],
-    );
-
-    Map<String, dynamic> toJson() => {
-        "home": home,
-        "away": away,
-    };
-}
-
-
-class Referee { // arbitro
+class Referee {
     Referee({
-        required this.id,
-        required this.name,
-        required this.type,
-        required this.nationality,
+        this.id,
+        this.name,
+        this.type,
+        this.nationality,
     });
 
-    int id;
-    String name;
-    String type;
-    String nationality;
+    int? id;
+    String? name;
+    String? type;
+    String? nationality;
 
     factory Referee.fromJson(Map<String, dynamic> json) => Referee(
         id: json["id"],
@@ -237,34 +265,116 @@ class Referee { // arbitro
     };
 }
 
+class Score {
+    Score({
+        this.winner,
+        this.duration,
+        this.fullTime,
+        this.halfTime,
+    });
+
+    String? winner;
+    String? duration;
+    Time? fullTime;
+    Time? halfTime;
+
+    factory Score.fromJson(Map<String, dynamic> json) => Score(
+        winner: json["winner"],
+        duration: json["duration"],
+        fullTime: json["fullTime"] == null ? null : Time.fromJson(json["fullTime"]),
+        halfTime: json["halfTime"] == null ? null : Time.fromJson(json["halfTime"]),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "winner": winner,
+        "duration": duration,
+        "fullTime": fullTime?.toJson(),
+        "halfTime": halfTime?.toJson(),
+    };
+}
+
+class Time {
+    Time({
+        this.home,
+        this.away,
+    });
+
+    int? home;
+    int? away;
+
+    factory Time.fromJson(Map<String, dynamic> json) => Time(
+        home: json["home"],
+        away: json["away"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "home": home,
+        "away": away,
+    };
+}
+
+
 class Season {
     Season({
-        required this.id,
-        required this.startDate,
-        required this.endDate,
-        required this.currentMatchday,
+        this.id,
+        this.startDate,
+        this.endDate,
+        this.currentMatchday,
         this.winner,
     });
 
-    int id;
-    DateTime startDate;
-    DateTime endDate;
-    int currentMatchday;
+    int? id;
+    DateTime? startDate;
+    DateTime? endDate;
+    int? currentMatchday;
     dynamic winner;
 
     factory Season.fromJson(Map<String, dynamic> json) => Season(
         id: json["id"],
-        startDate: DateTime.parse(json["startDate"]),
-        endDate: DateTime.parse(json["endDate"]),
+        startDate: json["startDate"] == null ? null : DateTime.parse(json["startDate"]),
+        endDate: json["endDate"] == null ? null : DateTime.parse(json["endDate"]),
         currentMatchday: json["currentMatchday"],
         winner: json["winner"],
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
-        "startDate": "${startDate.year.toString().padLeft(4, '0')}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}",
-        "endDate": "${endDate.year.toString().padLeft(4, '0')}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}",
+        "startDate": "${startDate!.year.toString().padLeft(4, '0')}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}",
+        "endDate": "${endDate!.year.toString().padLeft(4, '0')}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}",
         "currentMatchday": currentMatchday,
         "winner": winner,
+    };
+}
+
+
+class ResultSet {
+    ResultSet({
+        this.count,
+        this.competitions,
+        this.first,
+        this.last,
+        this.played,
+    });
+
+    int? count;
+    String? competitions;
+    DateTime? first;
+    DateTime? last;
+    int? played;
+
+    factory ResultSet.fromJson(Map<String, dynamic> json) => ResultSet(
+        count: json["count"],
+        competitions: json["competitions"],
+        first: json["first"] == null ? null : DateTime.parse(json["first"]),
+        last: json["last"] == null ? null : DateTime.parse(json["last"]),
+        played: json["played"],
+    );
+
+    Map<String, dynamic> toJson() => {
+        "count": count,
+        "competitions": competitions,
+        "first": "${first!.year.toString().padLeft(4, '0')}-${first!.month.toString().padLeft(2, '0')}-${first!.day.toString().padLeft(2, '0')}",
+        "last": "${last!.year.toString().padLeft(4, '0')}-${last!.month.toString().padLeft(2, '0')}-${last!.day.toString().padLeft(2, '0')}",
+        "played": played,
     };
 }
