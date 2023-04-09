@@ -4,28 +4,21 @@ import 'package:pokemons_app/features/home/domain/domain.dart';
 import '../../infraestructure/infraestructure.dart';
 
 final matchNotifierProvider = StateNotifierProvider<MatchesNotifier, MatchesState>((ref) {
-  final FootballRepository footballRepository = FootballRepositoryImpl();
-  return MatchesNotifier(footballRepository);
+  return MatchesNotifier();
 });
 
 
 final matchesProvider = FutureProvider<List<MatchFootball>>((ref) async {
   final FootballRepository footballRepository = FootballRepositoryImpl();
-
   final matches = await footballRepository.getMatches();
+  ref.read(matchNotifierProvider.notifier).setMatches(matches);
   return matches;
 });
 
-
 class MatchesNotifier extends StateNotifier<MatchesState>{
-
-  final FootballRepository footballRepository;
-  MatchesNotifier(this.footballRepository): super(MatchesState()); // estado inicial
-
-  loadMatches() async {
-    state = state.copyWith(isLoading: true);
-    final matches = await footballRepository.getMatches();
-    state = state.copyWith(isLoading: false, matches: [...matches]);
+  MatchesNotifier(): super(MatchesState()); // estado inicial
+  setMatches(List<MatchFootball> matches) async {
+    state = MatchesState(matches: matches);
   }
 }
 
